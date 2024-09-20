@@ -1,8 +1,7 @@
 const hre = require('hardhat');
 
 async function main() {
-  // Replace with your actual ERC20 token address and betting duration in seconds
-  const stakingTokenAddress = '0x74EEb65Fb630603E2e298a45f2cC61139594422A'; // Replace with your token address
+  const stakingTokenAddress = '0x74EEb65Fb630603E2e298a45f2cC61139594422A';
   const bettingDuration = 3600; // 1 hour for example
 
   const EventBetting = await hre.ethers.getContractFactory('EventBetting');
@@ -11,9 +10,10 @@ async function main() {
     bettingDuration
   );
 
-  await eventBetting.deployed();
+  await eventBetting.waitForDeployment();
+  const contractAddress = await eventBetting.getAddress(); // Retrieve the contract address
 
-  console.log('EventBetting deployed to:', eventBetting.address);
+  console.log('EventBetting deployed to:', contractAddress);
 }
 
 main()
