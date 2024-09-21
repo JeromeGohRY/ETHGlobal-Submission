@@ -1,10 +1,9 @@
-import React from "react";
 import '../index.css';
 
 const SettingsPage = () => {
   return (
-    <div className="page-container">
-      <div className="centered-content">
+    <div className='page-container'>
+      <div className='centered-content'>
         <h1>User Profile</h1>
         <p>Name: Tyrone Lee</p>
         <p>Email: tyronelee@gmail.com</p>
