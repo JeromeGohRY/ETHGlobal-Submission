@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
-interface IERC20 {
-    function transfer(address recipient, uint256 amount) external returns (bool);
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-    function balanceOf(address account) external view returns (uint256);
-}
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract EventBetting {
     IERC20 public stakingToken;
@@ -38,8 +33,8 @@ contract EventBetting {
         _;
     }
 
-    constructor(IERC20 _stakingToken, uint256 _bettingDuration) {
-        stakingToken = _stakingToken;
+    constructor(address _stakingToken, uint256 _bettingDuration) {
+        stakingToken = IERC20(_stakingToken);
         bettingEndTime = block.timestamp + _bettingDuration;
         admin = msg.sender;
     }

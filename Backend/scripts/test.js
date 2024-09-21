@@ -1,23 +1,49 @@
-//0x74EEb65Fb630603E2e298a45f2cC61139594422A
-//0xc18e4D413064CE15AFB1e451Fef46C2A9B43D64f
 const hre = require('hardhat');
 
 async function main() {
-    const stakingTokenAddress = '0x74EEb65Fb630603E2e298a45f2cC61139594422A'; // Your token address
-    const eventBettingAddress = '0xc18e4D413064CE15AFB1e451Fef46C2A9B43D64f'; // Your deployed contract address
+    const eventBettingAddress = '0x3e939f19de3f0e858Cac10137b78d28Df7E63c3E'; // Your deployed EventBetting contract address
+    const stakingTokenAddress = "0xa4f0b7ba97cFB2fD31Ed31311844eea0786C4D81"; // AMB Token address
     const [signer] = await hre.ethers.getSigners();
 
-    // Interact with the staking token
-    const StakingToken = await hre.ethers.getContractAt('IERC20', stakingTokenAddress);
-    const eventBetting = await hre.ethers.getContractAt('EventBetting', eventBettingAddress);
+    // Get EventBetting contract instance
+    const EventBetting = await hre.ethers.getContractAt('EventBetting', eventBettingAddress);
+    
 
-    // Check the balance of the signer
+    // Get the staking token (AMB) address from the EventBetting contract
+    // const stakingTokenAddress = await EventBetting.stakingToken();
+    console.log(`Staking Token Address (AMB): ${stakingTokenAddress}`);
+
+    // Get the IERC20 interface for the AirDAO (AMB) token
+    const StakingToken = new hre.ethers.Contract(
+        stakingTokenAddress,
+        [
+            "function balanceOf(address account) view returns (uint256)", // Standard ERC-20 balanceOf function
+            "function transfer(address recipient, uint256 amount) external returns (bool)",
+            "function transferFrom(address sender, address recipient, uint256 amount) external returns (bool)"
+        ],
+        signer
+    );
+
+    // Output signer's address
+    console.log(`Signer address: ${signer.address}`);
+
+    // Check signer's balance of the staking token (AMB)
     const balance = await StakingToken.balanceOf(signer.address);
-    console.log('Signer balance:', hre.ethers.utils.formatUnits(balance, 18));
+    console.log(balance);
+    console.log(`Signer balance: ${hre.ethers.utils.formatUnits(balance, 18)} AMB tokens`);
 
-    // Check allowance for the EventBetting contract
-    const allowance = await StakingToken.allowance(signer.address, eventBettingAddress);
-    console.log('Allowance for EventBetting:', hre.ethers.utils.formatUnits(allowance, 18));
+    // Optional: Interact with the EventBetting contract to place a bet
+    // Assuming the Outcome enum is defined as 1 = Option1, 2 = Option2
+    const betAmount = hre.ethers.utils.parseUnits("10", 18); // Betting 10 AMB tokens
+    const betOutcome = 1; // Option1 (you can modify this based on the Outcome enum)
+    
+    // Place the bet by calling the EventBetting contract
+    const placeBetTx = await EventBetting.placeBet(betOutcome, betAmount);
+    console.log('Bet placed:', placeBetTx.hash);
+    
+    // Wait for the transaction to be confirmed
+    await placeBetTx.wait();
+    console.log('Bet transaction confirmed');
 }
 
 main()
@@ -26,6 +52,7 @@ main()
         console.error(error);
         process.exit(1);
     });
+
 
 
 
